@@ -34,20 +34,18 @@ const styles = StyleSheet.create({
     },
     mainComponents: {
         width: '100%',
-        height: "45%",
-        marginTop: 30,
+        height: "40%",
+        marginTop: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        // overflow: 'hidden',
         marginBottom: 15,
         position: 'relative',
-        // backgroundColor: 'white'
     },
     track: {
-        width: '100%',
+        width: '90%',
         height: "100%",
         borderRadius: 400,
-        elevation: 12
+        elevation: 12, 
     },
     trackImage: {
         width: '100%',
@@ -62,13 +60,14 @@ const styles = StyleSheet.create({
         paddingBottom: 4,
         justifyContent: 'center',
         alignItems: 'center',
+        top: 0
     },
     lyricsText: {
         fontFamily: 'Inter-semi',
         textAlign: "center",
         fontSize: 21,
         color: "white",
-        letterSpacing: -0.8
+        letterSpacing: -0.2
     },
     functionalButtonsContainer: {
         width: '85%',
@@ -79,7 +78,7 @@ const styles = StyleSheet.create({
     },
     backOfIcon: {
         padding: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.29)',
+        backgroundColor: 'rgba(255, 255, 255, 0.30)',
         borderRadius: 50,
     },
     fonts: {
@@ -102,15 +101,16 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 25,
         justifyContent: 'space-between',
-        marginTop: 15,
+        marginTop: 8,
     },
     progress: {
-        width: "80%",
-        height: 3,
-        backgroundColor: 'white',
-        borderRadius: 10,
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start'
+        width: "100%",
+        height: 5,
+        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+        borderRadius: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
     },
     duration: {
         width: '100%',

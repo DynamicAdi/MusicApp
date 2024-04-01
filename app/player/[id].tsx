@@ -4,6 +4,7 @@ import ControlPlayer from '@/components/common/ControlPlayer'
 import useSavan from '@/hook/savan';
 import { Stack, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import { THEME } from '@/constants';
+// import usePlay from '@/hook/PlayEvents';
 // import MiniPlayer from '@/components/common/MiniPlayer';
 
 
@@ -16,7 +17,6 @@ const Player = () => {
         Loading: boolean,
         refetch: () => void,
       } = useSavan("songs", route.id);
-    
 
   return (
   
