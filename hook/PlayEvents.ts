@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Audio } from "expo-av";
 import { useLyrics } from "./fetchLyrics";
-// import { useLyrics } from "./fetchLyrics";
 
 const usePlay = (uri: string) => {
   const [playing, setPlaying] = useState<boolean>(false);
@@ -14,10 +13,10 @@ const usePlay = (uri: string) => {
 
   const [isSeeking, setIsSeeking] = useState<boolean>(false);
   const [Buffer, setBuffer] = useState<boolean>(true);
-  
-  const [lyricsIndex, setCurrentLyricIndex] = useState<number>(0);
-  const [lyrics, setLyrics]:any = useState();
-  // const [highlightedLine, setHighlightedLine] = useState<string>('');
+
+  const [lyrics, setLyrics]:any = useState('');
+  const [highlightLine, setHighlightLine] = useState('');  
+
   
 
 
@@ -86,25 +85,20 @@ const usePlay = (uri: string) => {
     calculateRemainingDuration();
   }, [position, duration]);
 
+
   useEffect(() => {
-    const intervalId = setInterval(async () => {
-      if (playing) {
-        updateCurrentLyricIndex();
+    // Split lyrics string into lines
+    const lines = lyrics.split('\n');
+    // Determine which line to highlight based on positionMillis
+    let currentLineIndex:any = -1;
+    for (let i = 0; i < lines.length; i++) {
+      const lineStartTime = (i / lines.length) * duration;
+      if (lineStartTime <= position) {
+        currentLineIndex = i;
       }
-    }, 100); // Adjust interval based on desired update frequency
-
-    return () => clearInterval(intervalId);
-  }, [playing]); // Only run when audio is playing
-
-  const updateCurrentLyricIndex = () => {
-    if (lyrics && position) {
-      const totalLyricDuration = lyrics.split('\n').length * 1000000;
-      const estimatedLyricIndex = Math.floor((position / status.durationMillis) * totalLyricDuration);
-      const safeIndex = Math.min(lyrics.split('\n').length - 1, Math.max(0, estimatedLyricIndex));
-      setCurrentLyricIndex(safeIndex);
     }
-  };
-
+    setHighlightLine(currentLineIndex);
+  }, [position, lyrics, duration]);
 
 
   const togglePlay = () => {
@@ -135,7 +129,8 @@ const usePlay = (uri: string) => {
     duration,
     remaining,
     setLyrics,
-    lyricsIndex,
+    highlightLine,
+    lyrics
   };
 };
 

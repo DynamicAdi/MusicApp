@@ -57,10 +57,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: "100%",
         paddingHorizontal: 20,
-        paddingBottom: 4,
+        paddingBottom: 3,
         justifyContent: 'center',
         alignItems: 'center',
-        top: 0
     },
     lyricsText: {
         fontFamily: 'Inter-semi',
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 30,
+        marginTop: 10,
     },
     title: {
         fontSize: 21,
@@ -101,7 +100,8 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 25,
         justifyContent: 'space-between',
-        marginTop: 8,
+        marginTop: 4,
+        gap: 14
     },
     progress: {
         width: "100%",

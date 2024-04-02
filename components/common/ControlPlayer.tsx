@@ -14,21 +14,20 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
 import styles from "@/styles/common/player.style";
 import Slider from "@react-native-community/slider";
-import { Lyrics } from "../lyrics";
+import { Lyrics } from "../../hook/lyrics";
 import { THEME } from "@/constants";
 import { States } from "@/hook/states";
 import usePlay from "@/hook/PlayEvents";
+import { downloadFile } from "@/functions/downloadFile";
 
 const ControlPlayer = ({
   data,
   error,
   Loading,
-  refetch,
 }: {
   data: any;
   error: boolean;
   Loading: boolean;
-  refetch: () => void;
 }) => {
   const { isLyricsVisible, setIsLyricsVisible } = States();
   const [shuffel, setShuffel] = useState<boolean>(false);
@@ -36,6 +35,13 @@ const ControlPlayer = ({
   const [heart, setHeart] = useState<boolean>(false);
   const [download, setDownload] = useState<boolean>(false);
 
+  const dlMusic = async () => {
+    const { done }: any = downloadFile(
+      data[0].downloadUrl[4].url,
+      data[0].name
+    );
+    setDownload(true);
+  };
   const {
     playing,
     togglePlay,
@@ -47,17 +53,20 @@ const ControlPlayer = ({
     handleSeek,
     remaining,
     setLyrics,
-    lyricsIndex 
+    highlightLine,
+    lyrics,
   } = usePlay(data[0].downloadUrl[4].url);
   const {
     formattedLyrics,
     Loading: LyricsLoading,
     error: LyricsError,
   } = Lyrics(data[0].id);
-  const lyrics = formattedLyrics;
+  const lyrc = formattedLyrics;
+
   const settingLyrics = () => {
-    setLyrics(lyrics);
+    setLyrics(lyrc);
   };
+
   const opacicty = useRef(new Animated.Value(0)).current;
   const rotation = useRef(new Animated.Value(0)).current;
 
@@ -161,6 +170,7 @@ const ControlPlayer = ({
                     <TouchableOpacity
                       onPress={() => {
                         flip();
+                        settingLyrics();
                       }}
                     >
                       <FontAwesome6
@@ -199,25 +209,26 @@ const ControlPlayer = ({
                                   Something went Wrong...!
                                 </Text>
                               ) : (
-                                <Text>
-                                  {lyrics.split("\n").map((lyric, index) => (
-                                    <View key={index}>
+                                <>
+                                  {lyrics
+                                    .split("\n")
+                                    .map((line: any, index: any) => (
                                       <Text
+                                        key={index}
                                         style={[
                                           styles.lyricsText,
                                           {
                                             color:
-                                              lyricsIndex === index
+                                              index === highlightLine
                                                 ? "white"
                                                 : "grey",
                                           },
                                         ]}
                                       >
-                                        {lyric}
+                                        {line}
                                       </Text>
-                                    </View>
-                                  ))}
-                                </Text>
+                                    ))}
+                                </>
                               )
                             ) : (
                               <Text style={styles.lyricsText}>
@@ -295,7 +306,7 @@ const ControlPlayer = ({
                         },
                       ]}
                       onPress={() => {
-                        setDownload(!download);
+                        dlMusic();
                       }}
                     >
                       {download ? (
@@ -345,7 +356,6 @@ const ControlPlayer = ({
                           setIsSeeking(false);
                         }}
                         thumbTintColor="#f4f4f4"
-                        // thumbImage={require("@/assets/images/dot.png")}
                         minimumTrackTintColor="#ffffff80"
                         maximumTrackTintColor="#00000050"
                         style={[

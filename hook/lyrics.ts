@@ -1,7 +1,4 @@
 import useSavan from "@/hook/savan";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Text } from "react-native";
-
 export const Lyrics =  (songId:string) => {
 
     const {data, Loading, error} = useSavan("songs", songId, "lyrics");
