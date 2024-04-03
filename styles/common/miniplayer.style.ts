@@ -39,7 +39,8 @@ const mini = StyleSheet.create({
     lyrics: {
         width: '100%',
         height: "98%",
-        paddingHorizontal: 10,
+        marginTop: 3,
+        paddingHorizontal: 3,
         // overflow: '',
         paddingBottom: 4,
         justifyContent: 'center',
@@ -47,7 +48,7 @@ const mini = StyleSheet.create({
     },
     lyricsText: {
         fontFamily: 'Inter-semi',
-        textAlign: "center",
+        textAlign: "left",
         fontSize: 16,
         color: "white",
         letterSpacing: -0.8
@@ -89,7 +90,7 @@ const mini = StyleSheet.create({
     },
     bridge: {
         width: "75%",
-        marginTop: 4,
+        // marginTop: 4,
     },
     progress: {
         width: "100%",
@@ -107,13 +108,13 @@ const mini = StyleSheet.create({
         borderRadius: 10,
     },
     time: {
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         width: '100%',
         flexDirection: 'row',
     },
     duration: {
         color: 'white',
-        fontSize: 10,
+        fontSize: 8,
         fontFamily: 'pop-reg',
     },
     buttons: {

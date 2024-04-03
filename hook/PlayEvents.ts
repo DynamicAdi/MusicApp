@@ -15,7 +15,9 @@ const usePlay = (uri: string) => {
   const [Buffer, setBuffer] = useState<boolean>(true);
 
   const [lyrics, setLyrics]:any = useState('');
-  const [highlightLine, setHighlightLine] = useState('');  
+  const [highlightLine, setHighlightLine] = useState('');
+  
+  
 
   
 
@@ -87,10 +89,8 @@ const usePlay = (uri: string) => {
 
 
   useEffect(() => {
-    // Split lyrics string into lines
     const lines = lyrics.split('\n');
-    // Determine which line to highlight based on positionMillis
-    let currentLineIndex:any = -1;
+    let currentLineIndex:any = -5;
     for (let i = 0; i < lines.length; i++) {
       const lineStartTime = (i / lines.length) * duration;
       if (lineStartTime <= position) {

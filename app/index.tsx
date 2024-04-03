@@ -10,6 +10,7 @@ import {
 import Pills from "@/components/Pills";
 import Savan from "@/components/savan/Savan";
 import Artist from "@/components/Artist";
+import MiniPlayer from "@/components/common/MiniPlayer";
 // import MiniPlayer from "@/components/common/MiniPlayer";
   
 const tabs = [
@@ -54,7 +55,7 @@ const tabs = [
       </View>
       </ScrollView>
       {/* <View style={styles.miniplayer}> */}
-        {/* <MiniPlayer /> */}
+        <MiniPlayer id="route" />
       {/* </View> */}
         </View>
       </>

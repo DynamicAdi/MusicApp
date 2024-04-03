@@ -7,7 +7,8 @@ export const global = StyleSheet.create({
     },
     player: {
         position: "absolute",
-        right: 10,
+        left: 10,
+        // right: 0,
         bottom: 15,
     }
 })

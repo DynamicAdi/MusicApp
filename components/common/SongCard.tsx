@@ -33,19 +33,8 @@ const SongCard = ({
 }) => {
   const scheme = useColorScheme();
   const router = useRouter();
-  const [isVisible, setVisible] = useState(false);  
-  // const {storeSongData} = useSongContext();
-
-  // const handleClick = async () => {
-  //   const { data, error, Loading, refetch }:{
-  //     data: any,
-  //         error: boolean,
-  //         Loading: boolean,
-  //         refetch: () => void,
-  //       } = useSavan("songs", id);
-  //   storeSongData(data);
-    
-  // }
+  const [isVisible, setVisible] = useState(false);
+  const {setSongId} = States();
 
   return (
     <View style={res.container}>
@@ -58,7 +47,7 @@ const SongCard = ({
       <TouchableOpacity
         style={[res.click, 
         ]}
-        onPress={()=> {router.navigate(`../../player/${id}`)}}
+        onPress={()=> {router.navigate(`../../player/${id}`), setSongId(id)}}
       >
         <View style={res.imgParent}>
           <Image style={res.imgMain} source={{ uri: `${imgUri}` }} />
