@@ -18,7 +18,10 @@ import { Lyrics } from "../../hook/lyrics";
 import { THEME } from "@/constants";
 import { States } from "@/hook/states";
 import usePlay from "@/hook/PlayEvents";
-import { downloadFile } from "@/functions/downloadFile";
+import {useDispatch, useSelector} from "react-redux"
+import { setData } from "@/context/slice";
+import { setLyrics, setHighlightLine, setIsSeeking, setPlaying } from "@/context/Audio";
+// import { handlePress } from "@/hook/states";
 
 const ControlPlayer = ({
   data,
@@ -34,27 +37,20 @@ const ControlPlayer = ({
   const [repeat, setRepeat] = useState<boolean>(false);
   const [heart, setHeart] = useState<boolean>(false);
   const [download, setDownload] = useState<boolean>(false);
-
   const dlMusic = async () => {
-    const { done }: any = downloadFile(
-      data[0].downloadUrl[4].url,
-      data[0].name
-    );
     setDownload(true);
   };
   const {
-    playing,
-    togglePlay,
     loop,
-    position,
-    duration,
-    setIsSeeking,
-    Buffer,
-    handleSeek,
     remaining,
-    setLyrics,
-    highlightLine,
-    lyrics,
+    // position,
+    duration,
+    // setIsSeeking,
+    handleSeek,
+    Buffer,
+    // setLyrics,
+    // highlightLine,
+    // lyrics,
   } = usePlay(data[0].downloadUrl[4].url);
   const {
     formattedLyrics,
@@ -62,13 +58,24 @@ const ControlPlayer = ({
     error: LyricsError,
   } = Lyrics(data[0].id);
   const lyrc = formattedLyrics;
-
+  
   const settingLyrics = () => {
-    setLyrics(lyrc);
+    // setLyrics(lyrc);
+    dispatch(setLyrics(lyrc), setHighlightLine(highlightLine));
   };
 
   const opacicty = useRef(new Animated.Value(0)).current;
   const rotation = useRef(new Animated.Value(0)).current;
+ 
+ 
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(setData({ data: data, error: error, Loading: Loading }));
+   }, [data, error, Loading]);
+   
+   const { playing, position, lyrics, highlightLine, isBuffer } = useSelector(
+    (state: any) => state.audio
+  );
 
   Animated.timing(opacicty, {
     toValue: 1,
@@ -90,12 +97,7 @@ const ControlPlayer = ({
     }).start();
   };
 
-  const time = data[0].duration;
-  const minutes = Math.floor(Math.abs(time / 60));
-  const seconds = Math.floor(Math.abs(time % 60));
-  const timing = `${minutes}:${seconds}`;
-  const [miles, setMiles]: any = useState(seconds);
-  const [min, setMin] = useState(minutes);
+
 
   function formatTime(milliseconds: number) {
     const seconds = Math.floor(milliseconds / 1000);
@@ -103,19 +105,6 @@ const ControlPlayer = ({
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   }
-
-  useEffect(() => {
-    if (playing) {
-      const interval = setInterval(() => {
-        setMiles(miles - 1);
-      }, 1000);
-      if (miles < 0) {
-        setMiles(59);
-        setMin(min - 1);
-      }
-      return () => clearInterval(interval);
-    }
-  }, [miles, playing]);
 
   const scheme = useColorScheme();
 
@@ -198,7 +187,6 @@ const ControlPlayer = ({
                   >
                     {isLyricsVisible ? (
                       <>
-                        {/* <Overlay radius={40}> */}
                         <ScrollView showsVerticalScrollIndicator={false}>
                           <View style={[styles.lyrics]}>
                             {data[0].hasLyrics ? (
@@ -237,7 +225,6 @@ const ControlPlayer = ({
                             )}
                           </View>
                         </ScrollView>
-                        {/* </Overlay> */}
                       </>
                     ) : (
                       <Animated.View style={[styles.track]}>
@@ -350,10 +337,10 @@ const ControlPlayer = ({
                         minimumValue={0}
                         maximumValue={duration}
                         step={1000}
-                        onSlidingStart={() => setIsSeeking(true)}
+                        onSlidingStart={() => dispatch(setIsSeeking(true))}
                         onSlidingComplete={(value) => {
                           handleSeek(value);
-                          setIsSeeking(false);
+                          dispatch(setIsSeeking(false));
                         }}
                         thumbTintColor="#f4f4f4"
                         minimumTrackTintColor="#ffffff80"
@@ -369,7 +356,7 @@ const ControlPlayer = ({
                       />
                     </View>
                     <View style={styles.duration}>
-                      <Text style={{ color: "white" }}>{timing}</Text>
+                      <Text style={{ color: "white" }}>{formatTime(duration)}</Text>
                       <Text style={{ color: "white" }}>
                         {/* -{`${min}:${miles}`} */}-{formatTime(remaining)}
                       </Text>
@@ -384,12 +371,16 @@ const ControlPlayer = ({
                       />
                     </TouchableOpacity>
                     {Buffer ? (
+                    <>
+                    {/* {alert(isBuffer)} */}
                       <ActivityIndicator size={40} color="white" />
+                    </>
                     ) : (
                       <TouchableOpacity
                         style={[styles.backOfIcon, styles.playPause]}
                         onPress={() => {
-                          togglePlay();
+                          dispatch(setPlaying(!playing));
+                          // handlePress();
                         }}
                       >
                         {playing ? (

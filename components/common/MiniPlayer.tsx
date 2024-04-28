@@ -8,16 +8,26 @@ import {
   ScrollView,
   PanResponder,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import mini from "@/styles/common/miniplayer.style";
 import { Ionicons } from "@expo/vector-icons";
 import { States } from "@/hook/states";
 import { useGlobalSearchParams, useRouter } from "expo-router";
-import useSavan from "@/hook/savan";
-import usePlay from "@/hook/PlayEvents";
+import {useSelector, useDispatch} from "react-redux";
+import { Lyrics } from "@/hook/lyrics";
+import Slider from "@react-native-community/slider";
+import { setIsSeeking, setPlaying } from "@/context/Audio";
 
-const MiniPlayer = ({ id }: { id: string }) => {
+const MiniPlayer = () => {
+
+  const dispatch = useDispatch()
+  const songData = useSelector((state: any) => state.data.data);
+  const { playing, position, lyrics, highlightLine, duration, handleSeek, isBuffer } = useSelector(
+    (state: any) => state.audio
+  );
+
   const router = useRouter();
   const params = useGlobalSearchParams();
   
@@ -27,54 +37,33 @@ const MiniPlayer = ({ id }: { id: string }) => {
 
   const pan = useRef(new Animated.ValueXY()).current;
   const screenWidth = Dimensions.get("window").width;
-  const containerWidth = 260;
-  const jumpDistance = 105;
+  const containerWidth = 270;
+  const jumpDistance = 80;
 
-  // const { data, Loading, error } = useSavan(songId);
-  // alert(data)
-  const panResponse = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_: any, gestureState: any) => {
-        const { dx } = gestureState;
-        const maxX = screenWidth - containerWidth;
-        const newX = pan.x._value + dx; // pan.x._value is the current x value of the pan
-        if (newX >= 0 && newX <= maxX) {
-          pan.setValue({ x: newX, y: 0 });
-        }
-      },
-      onPanResponderRelease: (_: any, gestureState: any) => {
-        const distance = gestureState.dx > 0 ? 1 : -1;
-        Animated.spring(pan, {
-          toValue: { x: distance * jumpDistance, y: 0 },
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onPanResponderMove: (e, gestureState) => {
+      pan.setValue({ x: gestureState.dx, y: 0 });
+    },
+    onPanResponderRelease: (e, gestureState) => {
+      if (gestureState.dx > jumpDistance) {
+        Animated.timing(pan, {
+          toValue: { x: screenWidth - containerWidth, y: 0 },
+          duration: 300,
           useNativeDriver: false,
         }).start();
-      },
-    })
-  ).current;
-
-  useEffect(() => {
-    const maxX = screenWidth - containerWidth;
-    const listner = pan.x.addListener(({ value }: any) => {
-      const newX = value.x;
-      if (value < 0) {
-        pan.setOffset({ x: 0, y: 0 });
-        pan.setValue({ x: 0, y: 0 });
-      } else if (value > maxX) {
-        pan.setOffset({ x: maxX, y: 0 });
-        pan.setValue({ x: maxX, y: 0 });
+      } else {
+        Animated.timing(pan, {
+          toValue: { x: 0, y: 0 },
+          duration: 150,
+          useNativeDriver: false,
+        }).start();
       }
-    });
-    return () => {
-      pan.x.removeListener(listner);
-    };
-  }, [pan]);
-
-  const panStyle = {
-    transform: pan.getTranslateTransform(),
-  };
-
-  const visibleShow = () => {
+    },
+  });
+  
+  
+  function visibleShow() {
     Animated.timing(transform, {
       toValue: 1,
       duration: 1000,
@@ -98,14 +87,26 @@ const MiniPlayer = ({ id }: { id: string }) => {
       }).reset();
       setIsLyricsVisible(!isLyricsVisible);
     }, 900);
-  };
+  }
+
+  const {
+    formattedLyrics,
+    Loading: LyricsLoading,
+    error: LyricsError,
+  } = Lyrics(songData[0]?.id);
+
   return (
+  // <TouchableOpacity
+  // onPress={() => {router.navigate(//)}
+  // >
+
     <Animated.View
-      style={[mini.container, panStyle]}
-      {...panResponse.panHandlers}
-    >
+      style={[mini.container, { transform: [{ translateX: pan.x }] }]}
+      {...panResponder.panHandlers}
+      >
+    
       <View style={mini.imgParent}>
-        <Image source={{ uri: `Image url here` }} style={mini.img} />
+        <Image source={{ uri: `${songData[0]?.image[2].url}` }} style={mini.img} />
       </View>
 
       <View style={mini.content}>
@@ -129,37 +130,57 @@ const MiniPlayer = ({ id }: { id: string }) => {
           ]}
         >
           {isLyricsVisible ? (
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 1, zIndex: 99 }}
-            >
-              <View style={[mini.lyrics]}>
-                <Text style={mini.lyricsText}>
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                  Beatae, eius! Tempore voluptas facilis ratione libero
-                  dignissimos pariatur deleniti eligendi iusto recusandae!
-                  Inventore maiores nesciunt modi libero tenetur expedita
-                  eveniet commodi!{" "}
-                </Text>
-                {/* {songData.hasLyrics ? (<Text style={mini.lyricsText}>
-                      <Lyrics songId={`${songData.id}`} />
-                      </Text>) : 
-                    (<Text style={mini.lyricsText}>No Lyrics Found{":("}</Text>)} */}
-              </View>
-            </ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                          <View style={[mini.lyrics]}>
+                            {songData[0].hasLyrics ? (
+                              LyricsLoading ? (
+                                <ActivityIndicator color={"white"} />
+                              ) : LyricsError ? (
+                                <Text style={mini.lyricsText}>
+                                  Something went Wrong...!
+                                </Text>
+                              ) : (
+                                <>
+                                  {lyrics
+                                    .split("\n")
+                                    .map((line: any, index: any) => (
+                                      <Text
+                                      key={index}
+                                        style={[
+                                          mini.lyricsText,
+                                          {
+                                            color:
+                                              index === highlightLine
+                                                ? "white"
+                                                : "grey",
+                                          },
+                                        ]}
+                                      >
+                                        {line}
+                                      </Text>
+                                    ))}
+                                </>
+                              )
+                            ) : (
+                              <Text style={mini.lyricsText}>
+                                No Lyrics Found{":("}
+                              </Text>
+                            )}
+                          </View>
+                        </ScrollView>
           ) : (
             <View style={mini.context}>
               <View style={mini.upper}>
                 <Ionicons name="musical-note-sharp" size={16} color="white" />
-                <Text style={mini.label}>Label here</Text>
+                <Text style={mini.label} numberOfLines={1}>{songData[0]?.label}</Text>
               </View>
 
               <View style={mini.middle}>
                 <Text style={mini.title} numberOfLines={1}>
-                  Name here
+                  {songData[0]?.name}
                 </Text>
                 <Text style={mini.label} numberOfLines={1}>
-                  Artist NAme here
+                  {songData[0]?.artists.primary[0].name}
                 </Text>
               </View>
 
@@ -168,9 +189,23 @@ const MiniPlayer = ({ id }: { id: string }) => {
                   <Ionicons name="play-skip-back" size={24} color="white" />
                 </TouchableOpacity>
                 <View style={mini.bridge}>
-                  <View style={mini.progress}>
-                    <View style={mini.bar}></View>
-                  </View>
+                <Slider
+                        value={position}
+                        minimumValue={0}
+                        maximumValue={duration}
+                        step={1000}
+                        onSlidingStart={() => {
+                          dispatch(setIsSeeking(true));
+                        }}
+                        onSlidingComplete={(value) => {
+                         dispatch(handleSeek(value));
+                        dispatch(setIsSeeking(false));
+                      }}
+                        thumbTintColor="#f4f4f4"
+                        minimumTrackTintColor="#ffffff95"
+                        maximumTrackTintColor="#ffffff80" 
+                        // style={mini.progress}
+                        />
                 </View>
                 <TouchableOpacity>
                   <Ionicons name="play-skip-forward" size={24} color="white" />
@@ -189,9 +224,11 @@ const MiniPlayer = ({ id }: { id: string }) => {
           >
             <Ionicons name="barcode-sharp" size={26} color="white" />
           </TouchableOpacity>
+            {isBuffer ? <ActivityIndicator color={'white'} size={28}/> :
+          (
 
-          <TouchableOpacity style={mini.btnBg} onPress={() => {}}>
-            {"condition" ? (
+            <TouchableOpacity style={mini.btnBg} onPress={() => {dispatch(setPlaying(!playing))}}>
+            {playing ? (
               <Ionicons name="pause" size={24} color="white" />
             ) : (
               <Ionicons
@@ -199,10 +236,12 @@ const MiniPlayer = ({ id }: { id: string }) => {
                 size={24}
                 color="white"
                 style={{ marginLeft: 1 }}
-              />
-            )}
+                />
+              )}
             {/*  */}
           </TouchableOpacity>
+          )
+            }
 
           <TouchableOpacity>
             <Ionicons name="heart" size={26} color="white" />
@@ -210,6 +249,7 @@ const MiniPlayer = ({ id }: { id: string }) => {
         </View>
       </View>
     </Animated.View>
+            // </TouchableOpacity>
   );
 };
 

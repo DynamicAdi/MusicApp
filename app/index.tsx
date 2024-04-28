@@ -55,7 +55,7 @@ const tabs = [
       </View>
       </ScrollView>
       {/* <View style={styles.miniplayer}> */}
-        <MiniPlayer id="route" />
+        {/* <MiniPlayer /> */}
       {/* </View> */}
         </View>
       </>

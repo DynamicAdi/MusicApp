@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
 const useSavan = (catogery: string, query?: string, type?: any) => {
   const [data, setData] = useState([]);

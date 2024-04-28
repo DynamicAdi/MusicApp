@@ -1,12 +1,11 @@
 import { COLORS, SIZES } from "@/constants";
 import { Dimensions, StyleSheet } from "react-native";
 import { global } from "../global.style";
-const {width, height} = Dimensions.get("window");
+
 const mini = StyleSheet.create({
     container: {
         ...global.player,
-        // width: width * 2 / 3,
-        width: 260,
+        width: 250,
         height: 160,
         borderRadius: 10,
         backgroundColor: 'red',
@@ -25,7 +24,7 @@ const mini = StyleSheet.create({
     },
     content: {
         position: "absolute",
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        backgroundColor: 'rgba(0, 0, 0, 0.45)',
         width: "100%",
         height: "100%",
         justifyContent: 'space-between',
@@ -41,7 +40,6 @@ const mini = StyleSheet.create({
         height: "98%",
         marginTop: 3,
         paddingHorizontal: 3,
-        // overflow: '',
         paddingBottom: 4,
         justifyContent: 'center',
         alignItems: 'center',
@@ -84,38 +82,13 @@ const mini = StyleSheet.create({
     lower: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         width: "95%",
-        gap: 3
+        gap: 0
     },
     bridge: {
         width: "75%",
         // marginTop: 4,
-    },
-    progress: {
-        width: "100%",
-        height: 2,
-        backgroundColor: 'rgba(255, 255, 255, 0.4)',
-        borderRadius: 10,
-        position: 'relative',
-        overflow: 'hidden'
-    },
-    bar: {
-        position: 'absolute',
-        width: "70%",
-        height: '100%',
-        backgroundColor: 'white',
-        borderRadius: 10,
-    },
-    time: {
-        justifyContent: 'flex-end',
-        width: '100%',
-        flexDirection: 'row',
-    },
-    duration: {
-        color: 'white',
-        fontSize: 8,
-        fontFamily: 'pop-reg',
     },
     buttons: {
         flexDirection: 'row',
@@ -127,8 +100,8 @@ const mini = StyleSheet.create({
     btnBg: {
         backgroundColor: 'rgba(255, 255, 255, 0.3)',
         borderRadius: 50,
-        padding: 13,
-        // paddingHorizontal: 13,
+        padding: 11,
+        paddingHorizontal: 12,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -136,7 +109,6 @@ const mini = StyleSheet.create({
     right: {
         width: "25%",
         height: "100%",
-        // backgroundColor: 'green',
         padding: 8,
         justifyContent: 'space-between',
         alignItems: 'flex-end'

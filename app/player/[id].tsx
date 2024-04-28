@@ -44,12 +44,7 @@ const Player = () => {
         data={data}
         error={error}
         Loading={Loading}
-        refetch={refetch}
         />
-      <View style={{display: 'flex'}}>
-      {/* <MiniPlayer id={route.id}  /> */}
-      </View>
-        {/* <Text style={{margin: 40, color: 'white'}}>{`${route.id}`}</Text> */}
         </>
       )
     }

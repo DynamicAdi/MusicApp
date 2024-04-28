@@ -1,64 +1,67 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Audio } from "expo-av";
-import { useLyrics } from "./fetchLyrics";
+import {useDispatch, useSelector} from "react-redux";
+import { setBuffer as load, setDuration as time, setHighlightLine, setPlaying, setPosition as currentPosition, setLyrics, setIsSeeking } from "@/context/Audio";
+
 
 const usePlay = (uri: string) => {
-  const [playing, setPlaying] = useState<boolean>(false);
+  // OLD CODE
+  // const [playing, setPlaying] = useState<boolean>(false);
+  const [position, setPosition] = useState<number>(0);
+  
+  // const [isSeeking, setIsSeeking] = useState<boolean>(false);
+  const [Buffer, setBuffer] = useState<boolean>(true);
+
+  // const [lyrics, setLyrics]:any = useState('');
+  // const [highlightLine, setHighlightLine] = useState('');
+
   const [sound, setSound] = useState<Audio.Sound>();
   const [status, setStatus] = useState<any>();
-
-  const [position, setPosition] = useState<number>(0);
   const [duration, setDuration] = useState<any>(0);
   const [remaining, setRemainingDuration] = useState<number>(0);
 
-  const [isSeeking, setIsSeeking] = useState<boolean>(false);
-  const [Buffer, setBuffer] = useState<boolean>(true);
-
-  const [lyrics, setLyrics]:any = useState('');
-  const [highlightLine, setHighlightLine] = useState('');
+  // New Variables Code
+  const dispatch = useDispatch();
+  const {playing, position:pos, isSeeking, lyrics } = useSelector(
+    (state: any) => state.audio
+  );
   
-  
-
-  
-
 
 
   useEffect(() => {
     const loadSound = async () => {
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: uri },
-        { shouldPlay: true }
-      );
-      setSound(sound);
-      const initState = await sound.getStatusAsync();
-      setStatus(initState);
-      if (initState.isLoaded && initState.isBuffering) {
-        setBuffer(false);
-        setPlaying(true);
-      }
+          const { sound } = await Audio.Sound.createAsync(
+            { uri: uri },
+            { shouldPlay: true },
+          );
+          setSound(sound);
+          const initState = await sound.getStatusAsync();
+          setStatus(initState);
+          
+          if (initState.isLoaded && initState.isBuffering) {
+            setBuffer(false);
+            dispatch(load(false), setPlaying(true))
+          }
     };
-
+    
     loadSound();
-
+    
     return () => {
       if (sound) {
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            setPlaying(false);
-            sound.unloadAsync();
-          }
-        });
+        dispatch(setPlaying(false));
+        sound.unloadAsync();
       }
     };
   }, [uri]);
-
+  
   useEffect(() => {
     if (sound) {
       sound.setOnPlaybackStatusUpdate((status) => {
         if(status.isLoaded) {
           setDuration(status.durationMillis);
-        setPosition(status.positionMillis);
-      }
+          setPosition(status.positionMillis);
+          dispatch(currentPosition(status.positionMillis), time(status.durationMillis));
+        }
     });
     }
   }, [sound]);
@@ -89,21 +92,18 @@ const usePlay = (uri: string) => {
 
 
   useEffect(() => {
-    const lines = lyrics.split('\n');
-    let currentLineIndex:any = -5;
-    for (let i = 0; i < lines.length; i++) {
-      const lineStartTime = (i / lines.length) * duration;
-      if (lineStartTime <= position) {
-        currentLineIndex = i;
+    if(lyrics !== undefined) {
+     const lines = lyrics.split('\n');
+      let currentLineIndex:any = -5;
+      for (let i = 0; i < lines.length; i++) {
+        const lineStartTime = (i / lines.length) * duration;
+        if (lineStartTime <= position) {
+          currentLineIndex = i;
+        }
       }
+      dispatch(setHighlightLine(currentLineIndex))
     }
-    setHighlightLine(currentLineIndex);
   }, [position, lyrics, duration]);
-
-
-  const togglePlay = () => {
-    setPlaying(!playing);
-  };
 
 
   const loop = () => {
@@ -119,18 +119,11 @@ const usePlay = (uri: string) => {
   }
 
   return {
-    playing,
-    togglePlay,
     loop,
-    position,
     Buffer,
-    setIsSeeking,
     handleSeek,
     duration,
     remaining,
-    setLyrics,
-    highlightLine,
-    lyrics
   };
 };
 
